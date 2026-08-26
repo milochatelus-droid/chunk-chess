@@ -3,84 +3,282 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Module Chunks — Prototype</title>
+<title>Entraînement aux Chunks tactiques</title>
 <style>
   :root {
-    --bg: #1b1d21; --surface: #24272c; --surface2: #2c3036; --line: #3a3e45;
-    --text: #e9e6df; --text-dim: #9a978f; --gold: #c9a24c; --green: #4f9d6e; --red: #c56458; --blue: #5f8ecb;
+    --bg: #121417;
+    --surface: #1e2228;
+    --surface-hover: #262c34;
+    --line: #2e3540;
+    --text: #f0f2f5;
+    --text-dim: #9aa4b2;
+    --gold: #d4af37;
+    --gold-hover: #b89628;
+    --green: #2e7d32;
+    --red: #c62828;
+    --blue: #1565c0;
+    --sq-light: #e0e4ec;
+    --sq-dark: #4b6584;
   }
+
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; padding: 20px; }
-  .app { max-width: 600px; margin: 0 auto; }
-  .header { text-align: center; margin-bottom: 20px; }
-  .eyebrow { font-family: monospace; color: var(--gold); font-size: 12px; text-transform: uppercase; }
-  h1 { font-size: 22px; margin: 5px 0; }
-  
-  .status-bar { display: flex; justify-content: space-around; margin-bottom: 20px; background: var(--surface); padding: 10px; border-radius: 8px; border: 1px solid var(--line); }
-  .pill b { color: var(--gold); font-family: monospace; }
-  
-  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; text-align: center; }
-  .instructions { font-size: 14px; color: var(--text-dim); margin-bottom: 15px; }
-  
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 20px 10px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 580px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-size: 24px;
+    margin: 6px 0;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .eyebrow {
+    font-family: monospace;
+    color: var(--gold);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Mode selector tab */
+  .wave-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  .tab-btn {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--gold);
+    color: #121417;
+    border-color: var(--gold);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    font-size: 13px;
+  }
+  .status-item span { display: block; color: var(--text-dim); font-size: 10px; text-transform: uppercase; }
+  .status-item b { color: var(--gold); font-size: 14px; font-family: monospace; }
+
+  /* Main Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .card h2 { margin: 0 0 8px 0; font-size: 18px; }
+  .instructions { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; min-height: 38px; }
+
+  /* Échiquier principal */
   .board-container { display: flex; justify-content: center; margin: 15px 0; }
-  .board { display: grid; grid-template-columns: repeat(8, 40px); grid-template-rows: repeat(8, 40px); border: 2px solid var(--line); }
-  .sq { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 26px; user-select: none; }
-  .sq.light { background: #31353b; }
-  .sq.dark { background: #25282d; }
-  .sq.fx-green { background: rgba(79, 157, 110, 0.6) !important; }
-  .sq.fx-red { background: rgba(197, 100, 88, 0.6) !important; }
-  .sq.fx-blue { background: rgba(95, 142, 203, 0.5) !important; }
-  
-  .piece { color: var(--gold); cursor: pointer; }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(8, 44px);
+    grid-template-rows: repeat(8, 44px);
+    border: 3px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  }
+  .sq {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    user-select: none;
+    transition: background-color 0.15s;
+  }
+  .sq.light { background: var(--sq-light); }
+  .sq.dark { background: var(--sq-dark); }
+  .sq.fx-green { background: rgba(46, 125, 50, 0.75) !important; }
+  .sq.fx-red { background: rgba(198, 40, 40, 0.75) !important; }
+  .sq.fx-blue { background: rgba(21, 101, 192, 0.65) !important; }
+  .sq.drag-over { outline: 3px dashed var(--gold); outline-offset: -3px; }
 
-  .palette { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; background: var(--surface2); padding: 10px; border-radius: 8px; }
-  .palette-item { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: var(--surface); cursor: pointer; }
-  .palette-item.selected { border-color: var(--gold); background: #33291a; }
+  .piece {
+    cursor: grab;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+    line-height: 1;
+  }
+  .piece:active { cursor: grabbing; }
 
-  .mini-boards-row { display: flex; justify-content: center; gap: 15px; margin: 15px 0; }
-  .mini-card { background: var(--surface2); border: 2px solid var(--line); border-radius: 8px; padding: 8px; cursor: pointer; }
-  .mini-card:hover { border-color: var(--gold); }
-  .mini-board { display: grid; grid-template-columns: repeat(8, 16px); grid-template-rows: repeat(8, 16px); border: 1px solid var(--line); }
-  .mini-sq { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
-  .mini-sq.light { background: #31353b; }
-  .mini-sq.dark { background: #25282d; }
+  /* Palette de pièces */
+  .palette-container {
+    margin-bottom: 15px;
+  }
+  .palette-label { font-size: 11px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .palette {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    background: var(--bg);
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    min-height: 56px;
+    align-items: center;
+  }
+  .palette-item {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    background: var(--surface);
+    cursor: grab;
+    transition: transform 0.1s, border-color 0.1s;
+  }
+  .palette-item:hover { transform: translateY(-2px); border-color: var(--gold); }
+  .palette-item.selected { border: 2px solid var(--gold); background: rgba(212, 175, 55, 0.15); }
 
-  .btn { background: var(--gold); color: #1b1d21; border: none; border-radius: 6px; padding: 10px 20px; font-weight: 600; cursor: pointer; font-size: 14px; }
+  /* Reconnaissance Mini-boards */
+  .mini-boards-row { display: flex; justify-content: center; gap: 12px; margin: 15px 0; }
+  .mini-card {
+    background: var(--bg);
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    padding: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .mini-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+  .mini-board {
+    display: grid;
+    grid-template-columns: repeat(8, 16px);
+    grid-template-rows: repeat(8, 16px);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .mini-sq { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  .mini-sq.light { background: var(--sq-light); }
+  .mini-sq.dark { background: var(--sq-dark); }
+
+  /* Boutons d'action */
+  .btn {
+    background: var(--gold);
+    color: #121417;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s, transform 0.1s;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+  }
+  .btn:hover { background: var(--gold-hover); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
 </style>
 </head>
 <body>
 
 <div class="app">
   <div class="header">
-    <div class="eyebrow">Prototype fonctionnel</div>
-    <h1>Module Chunks (< 1200 ELO)</h1>
+    <div class="eyebrow">Mémorisation Visuelle Échecs</div>
+    <h1>Module Chunks Tactiques</h1>
+  </div>
+
+  <!-- Choix de la Phase -->
+  <div class="wave-selector">
+    <button class="tab-btn active" id="tab-v1" onclick="switchWave(1)">Phase 1 (1 Chunk)</button>
+    <button class="tab-btn" id="tab-v2" onclick="switchWave(2)">Phase 2 (Vague de Chunks)</button>
   </div>
 
   <div class="status-bar">
-    <div class="pill">Niveau : <b id="lbl-level">Niveau 0</b></div>
-    <div class="pill">Exposition : <b id="lbl-time">4500 ms</b></div>
-    <div class="pill">Score : <b id="lbl-score">0 / 0</b></div>
+    <div class="status-item"><span>Niveau</span><b id="lbl-level">Niveau 0</b></div>
+    <div class="status-item"><span>Exposition</span><b id="lbl-time">4500 ms</b></div>
+    <div class="status-item"><span>Score</span><b id="lbl-score">0 / 0</b></div>
   </div>
 
   <div class="card" id="stage-card"></div>
 </div>
 
 <script>
-const CHUNK = {
-  name: "Bouclier de pions du roi",
-  pieces: [
-    { type: "♔", square: "g1" },
-    { type: "♙", square: "f2" },
-    { type: "♙", square: "g2" },
-    { type: "♙", square: "h2" }
-  ]
-};
+// --- BANQUE DE CHUNKS ICONIQUES ---
+const CHUNKS_DATABASE = [
+  {
+    id: "chunk_roque_std",
+    name: "Roque Standard avec Cavalier & Fou",
+    pieces: [
+      { type: "♔", square: "g1" },
+      { type: "♖", square: "f1" },
+      { type: "♙", square: "f2" },
+      { type: "♙", square: "g2" },
+      { type: "♙", square: "h2" },
+      { type: "♘", square: "f3" },
+      { type: "♗", square: "d2" }
+    ]
+  },
+  {
+    id: "chunk_roque_var",
+    name: "Structure Roque (Variant C/F)",
+    pieces: [
+      { type: "♔", square: "g1" },
+      { type: "♖", square: "f1" },
+      { type: "♙", square: "f2" },
+      { type: "♙", square: "g2" },
+      { type: "♙", square: "h2" },
+      { type: "♘", square: "e2" },
+      { type: "♗", square: "f3" }
+    ]
+  },
+  {
+    id: "chunk_batterie_dame_fou",
+    name: "Batterie Attaque Dame + Fou",
+    pieces: [
+      { type: "♕", square: "c2" },
+      { type: "♗", square: "d3" }
+    ]
+  }
+];
 
 const LEVELS = [
   { label: "Niveau 0 — Découverte", ms: 4500 },
   { label: "Niveau 1 — Consolidation", ms: 2250 },
   { label: "Niveau 2 — Accélération", ms: 1000 },
-  { label: "Niveau 3 — Validation Flash", ms: 400 }
+  { label: "Niveau 3 — Flash", ms: 400 }
 ];
 
 const ALL_SQUARES = [];
@@ -88,14 +286,38 @@ for (let r = 8; r >= 1; r--) {
   for (let f = 0; f < 8; f++) ALL_SQUARES.push(String.fromCharCode(97 + f) + r);
 }
 
+let activeWave = 1; // 1 = Phase 1 (1 chunk), 2 = Phase 2 (Vague combinée)
 let levelIdx = 0, score = 0, attempts = 0, stage = "intro";
+let currentPieces = []; 
 let recognitionChoice = null, placedPieces = {}, availablePalette = [], selectedPalettePiece = null;
 let currentDistractors = [];
 
+function switchWave(wave) {
+  activeWave = wave;
+  document.getElementById("tab-v1").classList.toggle("active", wave === 1);
+  document.getElementById("tab-v2").classList.toggle("active", wave === 2);
+  stage = "intro";
+  renderUI();
+}
+
+function getActivePieces() {
+  if (activeWave === 1) {
+    return CHUNKS_DATABASE[0].pieces;
+  } else {
+    // Vague Phase 2 : Combinaison de deux chunks (ex: Roque var + Batterie)
+    return [...CHUNKS_DATABASE[1].pieces, ...CHUNKS_DATABASE[2].pieces];
+  }
+}
+
 function getDistractors() {
-  const optA = [...CHUNK.pieces];
-  const optB = CHUNK.pieces.map(p => p.square === "f2" ? {...p, square: "f3"} : p);
-  const optC = CHUNK.pieces.map(p => p.square === "g2" ? {...p, square: "g3"} : p);
+  const target = getActivePieces();
+  const optA = [...target];
+  
+  // Distraction 1: Décaler la 1ère pièce
+  const optB = target.map((p, i) => i === 2 ? {...p, square: p.square[0] + (parseInt(p.square[1])+1)} : p);
+  // Distraction 2: Décaler la dernière pièce
+  const optC = target.map((p, i) => i === target.length - 1 ? {...p, square: p.square[0] + (parseInt(p.square[1])-1)} : p);
+
   return [
     { pieces: optA, isCorrect: true },
     { pieces: optB, isCorrect: false },
@@ -112,30 +334,31 @@ function renderUI() {
 
   if (stage === "intro") {
     card.innerHTML = `
-      <h2>Prêt à démarrer l'exercice ?</h2>
-      <div class="instructions">Le chunk <b>"${CHUNK.name}"</b> va s'afficher pendant la durée impartie.</div>
+      <h2>${activeWave === 1 ? "Phase 1 : Encodage d'un Chunk" : "Phase 2 : Vague Multi-Chunks"}</h2>
+      <div class="instructions">Observez attentivement la position qui s'affiche pendant l'exposition.</div>
       <button class="btn" onclick="startTrial()">Lancer l'Exposition</button>
     `;
   } 
   else if (stage === "expose") {
+    const map = currentPieces.reduce((acc, p) => ({...acc, [p.square]: p.type}), {});
     card.innerHTML = `
       <h2>Phase d'Exposition</h2>
       <div class="instructions">Mémorisez le motif visuel...</div>
-      ${generateBoardHTML(CHUNK.pieces.reduce((acc, p) => ({...acc, [p.square]: p.type}), {}))}
+      ${generateBoardHTML(map)}
     `;
   } 
   else if (stage === "blank") {
-    card.innerHTML = `<div style="padding: 60px 0; color: var(--text-dim);">— Écran Noir —</div>`;
+    card.innerHTML = `<div style="padding: 60px 0; color: var(--text-dim); font-style: italic;">— Écran Noir —</div>`;
   } 
   else if (stage === "recognize") {
     card.innerHTML = `
-      <h2>Phase 1 — Reconnaissance Visuelle</h2>
-      <div class="instructions">Cliquez sur le mini-échiquier correct :</div>
+      <h2>1. Reconnaissance Visuelle</h2>
+      <div class="instructions">Choisissez le motif exact parmi les options :</div>
       <div class="mini-boards-row">
         ${currentDistractors.map((opt, idx) => `
           <div class="mini-card" onclick="selectRecognition(${idx})">
             ${generateMiniBoardHTML(opt.pieces)}
-            <div style="margin-top:5px; font-family:monospace; font-size:11px;">Option ${String.fromCharCode(65 + idx)}</div>
+            <div style="margin-top:6px; font-family:monospace; font-size:11px;">Option ${String.fromCharCode(65 + idx)}</div>
           </div>
         `).join('')}
       </div>
@@ -143,12 +366,18 @@ function renderUI() {
   } 
   else if (stage === "reconstruct") {
     card.innerHTML = `
-      <h2>Phase 2 — Reconstitution de Mémoire</h2>
-      <div class="instructions">Cliquez sur une pièce puis sur sa case (ou cliquez sur une pièce posée pour l'enlever).</div>
-      <div class="palette">
-        ${availablePalette.map((piece, i) => `
-          <div class="palette-item ${selectedPalettePiece === i ? 'selected' : ''}" onclick="selectPaletteItem(${i})">${piece}</div>
-        `).join('')}
+      <h2>2. Reconstitution active</h2>
+      <div class="instructions"><b>Glissez-déposez</b> les pièces sur l'échiquier (ou cliquez sur une pièce puis sur une case).</div>
+      <div class="palette-container">
+        <div class="palette-label">Réserve de pièces :</div>
+        <div class="palette">
+          ${availablePalette.map((piece, i) => `
+            <div class="palette-item ${selectedPalettePiece === i ? 'selected' : ''}" 
+                 draggable="true" 
+                 ondragstart="handleDragStart(event, ${i})" 
+                 onclick="selectPaletteItem(${i})">${piece}</div>
+          `).join('')}
+        </div>
       </div>
       ${generateBoardHTML(placedPieces, true)}
       <div style="margin-top:15px;">
@@ -157,7 +386,7 @@ function renderUI() {
     `;
   } 
   else if (stage === "feedback") {
-    const correctMap = CHUNK.pieces.reduce((acc, p) => ({...acc, [p.square]: p.type}), {});
+    const correctMap = currentPieces.reduce((acc, p) => ({...acc, [p.square]: p.type}), {});
     const fxMap = {};
     let perfect = true;
 
@@ -171,7 +400,7 @@ function renderUI() {
 
     card.innerHTML = `
       <h2>${perfect ? "🎉 Reconstitution Parfaite" : "⚠️ Erreur Détectée"}</h2>
-      <div class="instructions">Vert = Correct, Rouge = Mal placé, Bleu = Omis.</div>
+      <div class="instructions">Vert = Correct | Rouge = Mal placé | Bleu = Oublié.</div>
       ${generateBoardHTML({...correctMap, ...placedPieces}, false, fxMap)}
       <div style="margin-top:15px;">
         <button class="btn" onclick="nextTrial(${perfect})">Essai Suivant</button>
@@ -181,8 +410,9 @@ function renderUI() {
 }
 
 function startTrial() {
+  currentPieces = getActivePieces();
   placedPieces = {};
-  availablePalette = ["♔", "♙", "♙", "♙"];
+  availablePalette = currentPieces.map(p => p.type);
   selectedPalettePiece = null;
   stage = "expose";
   renderUI();
@@ -194,7 +424,7 @@ function startTrial() {
       currentDistractors = getDistractors();
       stage = "recognize";
       renderUI();
-    }, 500);
+    }, 400);
   }, LEVELS[levelIdx].ms);
 }
 
@@ -204,9 +434,35 @@ function selectRecognition(idx) {
   renderUI();
 }
 
+// --- DRAG & DROP & CLICK HANDLERS ---
 function selectPaletteItem(index) {
   selectedPalettePiece = selectedPalettePiece === index ? null : index;
   renderUI();
+}
+
+function handleDragStart(e, paletteIndex) {
+  e.dataTransfer.setData("text/plain", paletteIndex);
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add("drag-over");
+}
+
+function handleDragLeave(e) {
+  e.currentTarget.classList.remove("drag-over");
+}
+
+function handleDrop(e, sq) {
+  e.preventDefault();
+  e.currentTarget.classList.remove("drag-over");
+  const paletteIndex = parseInt(e.dataTransfer.getData("text/plain"));
+  if (!isNaN(paletteIndex) && availablePalette[paletteIndex]) {
+    placedPieces[sq] = availablePalette[paletteIndex];
+    availablePalette.splice(paletteIndex, 1);
+    selectedPalettePiece = null;
+    renderUI();
+  }
 }
 
 function clickSquare(sq) {
@@ -248,9 +504,16 @@ function generateBoardHTML(piecesMap, interactive = false, fxMap = {}) {
     const isLight = (file + rank) % 2 === 1;
     const fx = fxMap[sq] ? `fx-${fxMap[sq]}` : '';
     const piece = piecesMap[sq] || '';
+    
+    const dragEvents = interactive ? `
+      ondragover="handleDragOver(event)" 
+      ondragleave="handleDragLeave(event)" 
+      ondrop="handleDrop(event, '${sq}')" 
+      onclick="clickSquare('${sq}')"
+    ` : '';
+
     html += `
-      <div class="sq ${isLight ? 'light' : 'dark'} ${fx}" 
-           ${interactive ? `onclick="clickSquare('${sq}')"` : ''}>
+      <div class="sq ${isLight ? 'light' : 'dark'} ${fx}" ${dragEvents}>
         ${piece ? `<span class="piece">${piece}</span>` : ''}
       </div>`;
   });
