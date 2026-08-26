@@ -3,129 +3,33 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Entraînement aux Chunks tactiques</title>
+<title>Module Chunks — Protocole d'Apprentissage</title>
 <style>
   :root {
-    --bg: #121417;
-    --surface: #1e2228;
-    --surface-hover: #262c34;
-    --line: #2e3540;
-    --text: #f0f2f5;
-    --text-dim: #9aa4b2;
-    --gold: #d4af37;
-    --gold-hover: #b89628;
-    --green: #2e7d32;
-    --red: #c62828;
-    --blue: #1565c0;
-    --sq-light: #e0e4ec;
-    --sq-dark: #4b6584;
+    --bg: #121417; --surface: #1e2228; --surface2: #262c34; --line: #2e3540;
+    --text: #f0f2f5; --text-dim: #9aa4b2; --gold: #d4af37; --gold-hover: #b89628;
+    --green: #2e7d32; --red: #c62828; --blue: #1565c0;
+    --sq-light: #e0e4ec; --sq-dark: #4b6584;
   }
-
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    padding: 20px 10px;
-    display: flex;
-    justify-content: center;
-  }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; padding: 20px 10px; display: flex; justify-content: center; }
+  .app { width: 100%; max-width: 580px; }
+  
+  .header { text-align: center; margin-bottom: 15px; }
+  .header h1 { font-size: 22px; margin: 4px 0; }
+  .eyebrow { font-family: monospace; color: var(--gold); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
 
-  .app {
-    width: 100%;
-    max-width: 580px;
-  }
-
-  .header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  .header h1 {
-    font-size: 24px;
-    margin: 6px 0;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-  }
-  .eyebrow {
-    font-family: monospace;
-    color: var(--gold);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  /* Mode selector tab */
-  .wave-selector {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-  .tab-btn {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    color: var(--text-dim);
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 13px;
-    transition: all 0.2s;
-  }
-  .tab-btn.active {
-    background: var(--gold);
-    color: #121417;
-    border-color: var(--gold);
-  }
-
-  /* Status Bar */
-  .status-bar {
-    display: flex;
-    justify-content: space-between;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    padding: 12px 16px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    font-size: 13px;
-  }
+  .status-bar { display: flex; justify-content: space-around; background: var(--surface); border: 1px solid var(--line); padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 12px; }
+  .status-item { text-align: center; }
   .status-item span { display: block; color: var(--text-dim); font-size: 10px; text-transform: uppercase; }
   .status-item b { color: var(--gold); font-size: 14px; font-family: monospace; }
 
-  /* Main Card */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  }
-  .card h2 { margin: 0 0 8px 0; font-size: 18px; }
-  .instructions { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; min-height: 38px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+  .instructions { font-size: 13px; color: var(--text-dim); margin-bottom: 15px; min-height: 32px; }
 
-  /* Échiquier principal */
   .board-container { display: flex; justify-content: center; margin: 15px 0; }
-  .board {
-    display: grid;
-    grid-template-columns: repeat(8, 44px);
-    grid-template-rows: repeat(8, 44px);
-    border: 3px solid var(--line);
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
-  }
-  .sq {
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    user-select: none;
-    transition: background-color 0.15s;
-  }
+  .board { display: grid; grid-template-columns: repeat(8, 42px); grid-template-rows: repeat(8, 42px); border: 3px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .sq { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; font-size: 28px; user-select: none; }
   .sq.light { background: var(--sq-light); }
   .sq.dark { background: var(--sq-dark); }
   .sq.fx-green { background: rgba(46, 125, 50, 0.75) !important; }
@@ -133,190 +37,116 @@
   .sq.fx-blue { background: rgba(21, 101, 192, 0.65) !important; }
   .sq.drag-over { outline: 3px dashed var(--gold); outline-offset: -3px; }
 
-  .piece {
-    cursor: grab;
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
-    line-height: 1;
-  }
-  .piece:active { cursor: grabbing; }
+  .piece { cursor: grab; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); }
 
-  /* Palette de pièces */
-  .palette-container {
-    margin-bottom: 15px;
-  }
+  .palette-container { margin-bottom: 15px; }
   .palette-label { font-size: 11px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
-  .palette {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    background: var(--bg);
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid var(--line);
-    min-height: 56px;
-    align-items: center;
-  }
-  .palette-item {
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    background: var(--surface);
-    cursor: grab;
-    transition: transform 0.1s, border-color 0.1s;
-  }
-  .palette-item:hover { transform: translateY(-2px); border-color: var(--gold); }
+  .palette { display: flex; justify-content: center; gap: 8px; background: var(--bg); padding: 10px; border-radius: 10px; border: 1px solid var(--line); min-height: 54px; align-items: center; flex-wrap: wrap; }
+  .palette-item { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: var(--surface); cursor: grab; }
   .palette-item.selected { border: 2px solid var(--gold); background: rgba(212, 175, 55, 0.15); }
 
-  /* Reconnaissance Mini-boards */
-  .mini-boards-row { display: flex; justify-content: center; gap: 12px; margin: 15px 0; }
-  .mini-card {
-    background: var(--bg);
-    border: 2px solid var(--line);
-    border-radius: 10px;
-    padding: 8px;
-    cursor: pointer;
-    transition: border-color 0.2s, transform 0.2s;
-  }
-  .mini-card:hover { border-color: var(--gold); transform: translateY(-3px); }
-  .mini-board {
-    display: grid;
-    grid-template-columns: repeat(8, 16px);
-    grid-template-rows: repeat(8, 16px);
-    border: 1px solid var(--line);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .mini-sq { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  .mini-boards-row { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
+  .mini-card { background: var(--bg); border: 2px solid var(--line); border-radius: 8px; padding: 6px; cursor: pointer; }
+  .mini-card:hover { border-color: var(--gold); }
+  .mini-board { display: grid; grid-template-columns: repeat(8, 15px); grid-template-rows: repeat(8, 15px); border: 1px solid var(--line); }
+  .mini-sq { width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
   .mini-sq.light { background: var(--sq-light); }
   .mini-sq.dark { background: var(--sq-dark); }
 
-  /* Boutons d'action */
-  .btn {
-    background: var(--gold);
-    color: #121417;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background 0.2s, transform 0.1s;
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
-  }
-  .btn:hover { background: var(--gold-hover); transform: translateY(-1px); }
-  .btn:active { transform: translateY(0); }
+  .btn { background: var(--gold); color: #121417; border: none; border-radius: 8px; padding: 12px 24px; font-weight: 700; cursor: pointer; font-size: 14px; }
+  .btn:hover { background: var(--gold-hover); }
 </style>
 </head>
 <body>
 
 <div class="app">
   <div class="header">
-    <div class="eyebrow">Mémorisation Visuelle Échecs</div>
-    <h1>Module Chunks Tactiques</h1>
-  </div>
-
-  <!-- Choix de la Phase -->
-  <div class="wave-selector">
-    <button class="tab-btn active" id="tab-v1" onclick="switchWave(1)">Phase 1 (1 Chunk)</button>
-    <button class="tab-btn" id="tab-v2" onclick="switchWave(2)">Phase 2 (Vague de Chunks)</button>
+    <div class="eyebrow">Mémorisation Échecs</div>
+    <h1>Protocole d'Encodage par Vagues</h1>
   </div>
 
   <div class="status-bar">
-    <div class="status-item"><span>Niveau</span><b id="lbl-level">Niveau 0</b></div>
+    <div class="status-item"><span>Phase actuelle</span><b id="lbl-phase">Phase 1</b></div>
+    <div class="status-item"><span>Progression Vague</span><b id="lbl-step">Chunk 1 / 4</b></div>
     <div class="status-item"><span>Exposition</span><b id="lbl-time">4500 ms</b></div>
-    <div class="status-item"><span>Score</span><b id="lbl-score">0 / 0</b></div>
   </div>
 
   <div class="card" id="stage-card"></div>
 </div>
 
 <script>
-// --- BANQUE DE CHUNKS ICONIQUES ---
-const CHUNKS_DATABASE = [
+// VAGUE DE 4 CHUNKS EXEMPLES
+const CURRENT_WAVE = [
   {
-    id: "chunk_roque_std",
-    name: "Roque Standard avec Cavalier & Fou",
-    pieces: [
-      { type: "♔", square: "g1" },
-      { type: "♖", square: "f1" },
-      { type: "♙", square: "f2" },
-      { type: "♙", square: "g2" },
-      { type: "♙", square: "h2" },
-      { type: "♘", square: "f3" },
-      { type: "♗", square: "d2" }
-    ]
+    id: "c1_roque",
+    name: "Bouclier du Roi",
+    pieces: [ { type: "♔", square: "g1" }, { type: "♙", square: "f2" }, { type: "♙", square: "g2" }, { type: "♙", square: "h2" } ]
   },
   {
-    id: "chunk_roque_var",
-    name: "Structure Roque (Variant C/F)",
-    pieces: [
-      { type: "♔", square: "g1" },
-      { type: "♖", square: "f1" },
-      { type: "♙", square: "f2" },
-      { type: "♙", square: "g2" },
-      { type: "♙", square: "h2" },
-      { type: "♘", square: "e2" },
-      { type: "♗", square: "f3" }
-    ]
+    id: "c2_tour_roque",
+    name: "Tour de Roque & Cavalier",
+    pieces: [ { type: "♖", square: "f1" }, { type: "♘", square: "f3" } ]
   },
   {
-    id: "chunk_batterie_dame_fou",
-    name: "Batterie Attaque Dame + Fou",
-    pieces: [
-      { type: "♕", square: "c2" },
-      { type: "♗", square: "d3" }
-    ]
+    id: "c3_batterie_df",
+    name: "Batterie Dame + Fou",
+    pieces: [ { type: "♕", square: "c2" }, { type: "♗", square: "d3" } ]
+  },
+  {
+    id: "c4_fou_developpement",
+    name: "Fou de case noire",
+    pieces: [ { type: "♗", square: "d2" } ]
   }
 ];
 
-const LEVELS = [
-  { label: "Niveau 0 — Découverte", ms: 4500 },
-  { label: "Niveau 1 — Consolidation", ms: 2250 },
-  { label: "Niveau 2 — Accélération", ms: 1000 },
-  { label: "Niveau 3 — Flash", ms: 400 }
-];
+// Niveaux de temps par chunk
+const TIME_STEPS = [4500, 2250, 1000, 400];
+
+// Suivi individuel des réussites par Chunk : { chunk_id: nombre_de_reussites }
+const chunkStats = {};
+CURRENT_WAVE.forEach(c => chunkStats[c.id] = 0);
 
 const ALL_SQUARES = [];
 for (let r = 8; r >= 1; r--) {
   for (let f = 0; f < 8; f++) ALL_SQUARES.push(String.fromCharCode(97 + f) + r);
 }
 
-let activeWave = 1; // 1 = Phase 1 (1 chunk), 2 = Phase 2 (Vague combinée)
-let levelIdx = 0, score = 0, attempts = 0, stage = "intro";
-let currentPieces = []; 
-let recognitionChoice = null, placedPieces = {}, availablePalette = [], selectedPalettePiece = null;
-let currentDistractors = [];
+let currentPhase = 1; // Phase 1: Chunks individuels | Phase 2: Position intégrée
+let currentChunkIndex = 0; // Index du chunk dans la Phase 1
+let stage = "intro";
+let currentPieces = [];
+let placedPieces = {}, availablePalette = [], selectedPalettePiece = null;
+let currentDistractors = [], recognitionChoice = null;
 
-function switchWave(wave) {
-  activeWave = wave;
-  document.getElementById("tab-v1").classList.toggle("active", wave === 1);
-  document.getElementById("tab-v2").classList.toggle("active", wave === 2);
-  stage = "intro";
-  renderUI();
+function getChunkExposureMs(chunkId) {
+  const successes = chunkStats[chunkId] || 0;
+  const levelIdx = Math.min(successes, TIME_STEPS.length - 1);
+  return TIME_STEPS[levelIdx];
 }
 
-function getActivePieces() {
-  if (activeWave === 1) {
-    return CHUNKS_DATABASE[0].pieces;
+function getPhase2ExposureMs() {
+  // En phase 2, le temps dépend du niveau moyen atteint sur les chunks de la vague
+  const minSuccess = Math.min(...CURRENT_WAVE.map(c => chunkStats[c.id]));
+  return TIME_STEPS[Math.min(minSuccess, TIME_STEPS.length - 1)];
+}
+
+function setupCurrentStageData() {
+  if (currentPhase === 1) {
+    currentPieces = CURRENT_WAVE[currentChunkIndex].pieces;
   } else {
-    // Vague Phase 2 : Combinaison de deux chunks (ex: Roque var + Batterie)
-    return [...CHUNKS_DATABASE[1].pieces, ...CHUNKS_DATABASE[2].pieces];
+    // Phase 2 : fusion de TOUS les chunks de la vague
+    currentPieces = CURRENT_WAVE.reduce((acc, c) => [...acc, ...c.pieces], []);
   }
 }
 
 function getDistractors() {
-  const target = getActivePieces();
-  const optA = [...target];
+  const target = [...currentPieces];
+  const optA = target;
   
-  // Distraction 1: Décaler la 1ère pièce
-  const optB = target.map((p, i) => i === 2 ? {...p, square: p.square[0] + (parseInt(p.square[1])+1)} : p);
-  // Distraction 2: Décaler la dernière pièce
-  const optC = target.map((p, i) => i === target.length - 1 ? {...p, square: p.square[0] + (parseInt(p.square[1])-1)} : p);
+  // Distracteur B: altère le 1er élément
+  const optB = target.map((p, i) => i === 0 ? {...p, square: p.square[0] + (parseInt(p.square[1]) === 1 ? 2 : parseInt(p.square[1])-1)} : p);
+  // Distracteur C: altère le dernier élément
+  const optC = target.map((p, i) => i === target.length - 1 ? {...p, square: p.square[0] + (parseInt(p.square[1]) === 8 ? 7 : parseInt(p.square[1])+1)} : p);
 
   return [
     { pieces: optA, isCorrect: true },
@@ -326,16 +156,26 @@ function getDistractors() {
 }
 
 function renderUI() {
-  document.getElementById("lbl-level").innerText = LEVELS[levelIdx].label;
-  document.getElementById("lbl-time").innerText = LEVELS[levelIdx].ms + " ms";
-  document.getElementById("lbl-score").innerText = `${score} / ${attempts}`;
+  setupCurrentStageData();
+
+  const currentMs = currentPhase === 1 ? getChunkExposureMs(CURRENT_WAVE[currentChunkIndex].id) : getPhase2ExposureMs();
+  document.getElementById("lbl-phase").innerText = currentPhase === 1 ? "Phase 1 (Encodage)" : "Phase 2 (Intégration)";
+  document.getElementById("lbl-step").innerText = currentPhase === 1 ? `Chunk ${currentChunkIndex + 1} / ${CURRENT_WAVE.length}` : "Position Complète";
+  document.getElementById("lbl-time").innerText = `${currentMs} ms`;
 
   const card = document.getElementById("stage-card");
 
   if (stage === "intro") {
+    const title = currentPhase === 1 
+      ? `Chunk ${currentChunkIndex + 1} : "${CURRENT_WAVE[currentChunkIndex].name}"` 
+      : "Position Intégrée (Phase 2)";
+    const desc = currentPhase === 1 
+      ? "Apprentissage du chunk individuel." 
+      : "Reconstitution globale de tous les chunks vus précédemment !";
+
     card.innerHTML = `
-      <h2>${activeWave === 1 ? "Phase 1 : Encodage d'un Chunk" : "Phase 2 : Vague Multi-Chunks"}</h2>
-      <div class="instructions">Observez attentivement la position qui s'affiche pendant l'exposition.</div>
+      <h2>${title}</h2>
+      <div class="instructions">${desc}<br>Durée d'exposition : <b>${currentMs} ms</b></div>
       <button class="btn" onclick="startTrial()">Lancer l'Exposition</button>
     `;
   } 
@@ -343,7 +183,7 @@ function renderUI() {
     const map = currentPieces.reduce((acc, p) => ({...acc, [p.square]: p.type}), {});
     card.innerHTML = `
       <h2>Phase d'Exposition</h2>
-      <div class="instructions">Mémorisez le motif visuel...</div>
+      <div class="instructions">Mémorisez la disposition visuelle...</div>
       ${generateBoardHTML(map)}
     `;
   } 
@@ -353,12 +193,12 @@ function renderUI() {
   else if (stage === "recognize") {
     card.innerHTML = `
       <h2>1. Reconnaissance Visuelle</h2>
-      <div class="instructions">Choisissez le motif exact parmi les options :</div>
+      <div class="instructions">Sélectionnez la mini-carte correspondant à ce que vous avez vu :</div>
       <div class="mini-boards-row">
         ${currentDistractors.map((opt, idx) => `
           <div class="mini-card" onclick="selectRecognition(${idx})">
             ${generateMiniBoardHTML(opt.pieces)}
-            <div style="margin-top:6px; font-family:monospace; font-size:11px;">Option ${String.fromCharCode(65 + idx)}</div>
+            <div style="margin-top:4px; font-family:monospace; font-size:10px;">Option ${String.fromCharCode(65 + idx)}</div>
           </div>
         `).join('')}
       </div>
@@ -366,8 +206,8 @@ function renderUI() {
   } 
   else if (stage === "reconstruct") {
     card.innerHTML = `
-      <h2>2. Reconstitution active</h2>
-      <div class="instructions"><b>Glissez-déposez</b> les pièces sur l'échiquier (ou cliquez sur une pièce puis sur une case).</div>
+      <h2>2. Reconstitution Active</h2>
+      <div class="instructions">Placer les pièces (glisser-déposer ou clic pièce puis case).</div>
       <div class="palette-container">
         <div class="palette-label">Réserve de pièces :</div>
         <div class="palette">
@@ -399,23 +239,25 @@ function renderUI() {
     if (recognitionChoice !== true) perfect = false;
 
     card.innerHTML = `
-      <h2>${perfect ? "🎉 Reconstitution Parfaite" : "⚠️ Erreur Détectée"}</h2>
-      <div class="instructions">Vert = Correct | Rouge = Mal placé | Bleu = Oublié.</div>
+      <h2>${perfect ? "🎉 Bravo ! Validé" : "⚠️ Erreur de Reconstitution"}</h2>
+      <div class="instructions">Vert = Correct | Rouge = Erreur | Bleu = Manquant.</div>
       ${generateBoardHTML({...correctMap, ...placedPieces}, false, fxMap)}
       <div style="margin-top:15px;">
-        <button class="btn" onclick="nextTrial(${perfect})">Essai Suivant</button>
+        <button class="btn" onclick="nextStep(${perfect})">Étape Suivante</button>
       </div>
     `;
   }
 }
 
 function startTrial() {
-  currentPieces = getActivePieces();
+  setupCurrentStageData();
   placedPieces = {};
   availablePalette = currentPieces.map(p => p.type);
   selectedPalettePiece = null;
   stage = "expose";
   renderUI();
+
+  const ms = currentPhase === 1 ? getChunkExposureMs(CURRENT_WAVE[currentChunkIndex].id) : getPhase2ExposureMs();
 
   setTimeout(() => {
     stage = "blank";
@@ -425,7 +267,7 @@ function startTrial() {
       stage = "recognize";
       renderUI();
     }, 400);
-  }, LEVELS[levelIdx].ms);
+  }, ms);
 }
 
 function selectRecognition(idx) {
@@ -434,7 +276,6 @@ function selectRecognition(idx) {
   renderUI();
 }
 
-// --- DRAG & DROP & CLICK HANDLERS ---
 function selectPaletteItem(index) {
   selectedPalettePiece = selectedPalettePiece === index ? null : index;
   renderUI();
@@ -481,18 +322,29 @@ function clickSquare(sq) {
 }
 
 function submitReconstruction() {
-  attempts++;
   stage = "feedback";
   renderUI();
 }
 
-function nextTrial(isPerfect) {
-  if (isPerfect) {
-    score++;
-    if (levelIdx < LEVELS.length - 1) levelIdx++;
+function nextStep(isPerfect) {
+  if (currentPhase === 1) {
+    const currentChunkId = CURRENT_WAVE[currentChunkIndex].id;
+    if (isPerfect) {
+      chunkStats[currentChunkId] = (chunkStats[currentChunkId] || 0) + 1;
+    }
+
+    // Passage au chunk suivant ou passage en Phase 2
+    if (currentChunkIndex < CURRENT_WAVE.length - 1) {
+      currentChunkIndex++;
+    } else {
+      currentPhase = 2; // Tous les chunks de la vague ont été présentés 1 par 1
+    }
   } else {
-    if (levelIdx > 0) levelIdx--;
+    // Phase 2 achevée : réinitialisation vers la Phase 1 pour reboucler/accélérer
+    currentPhase = 1;
+    currentChunkIndex = 0;
   }
+
   stage = "intro";
   renderUI();
 }
