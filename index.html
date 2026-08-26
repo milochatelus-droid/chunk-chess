@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Module Chunks — Protocole d'Apprentissage</title>
+<title>Module Chunks — Position Réelle</title>
 <style>
   :root {
     --bg: #121417; --surface: #1e2228; --surface2: #262c34; --line: #2e3540;
@@ -38,6 +38,7 @@
   .sq.drag-over { outline: 3px dashed var(--gold); outline-offset: -3px; }
 
   .piece { cursor: grab; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); }
+  .piece.black-piece { color: #000; filter: drop-shadow(0 2px 3px rgba(255,255,255,0.2)); }
 
   .palette-container { margin-bottom: 15px; }
   .palette-label { font-size: 11px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
@@ -61,13 +62,13 @@
 
 <div class="app">
   <div class="header">
-    <div class="eyebrow">Mémorisation Échecs</div>
-    <h1>Protocole d'Encodage par Vagues</h1>
+    <div class="eyebrow">Encodage & Intégration</div>
+    <h1>Module Chunks Tactiques</h1>
   </div>
 
   <div class="status-bar">
-    <div class="status-item"><span>Phase actuelle</span><b id="lbl-phase">Phase 1</b></div>
-    <div class="status-item"><span>Progression Vague</span><b id="lbl-step">Chunk 1 / 4</b></div>
+    <div class="status-item"><span>Phase</span><b id="lbl-phase">Phase 1</b></div>
+    <div class="status-item"><span>Étape</span><b id="lbl-step">Chunk 1 / 4</b></div>
     <div class="status-item"><span>Exposition</span><b id="lbl-time">4500 ms</b></div>
   </div>
 
@@ -75,44 +76,55 @@
 </div>
 
 <script>
-// VAGUE DE 4 CHUNKS EXEMPLES
-const CURRENT_WAVE = [
+// --- CHUNKS EXTRAITS DE TON IMAGE ---
+const CHUNKS_DATABASE = [
   {
-    id: "c1_roque",
-    name: "Bouclier du Roi",
-    pieces: [ { type: "♔", square: "g1" }, { type: "♙", square: "f2" }, { type: "♙", square: "g2" }, { type: "♙", square: "h2" } ]
+    id: "c1_cavaliers",
+    name: "Duo de Cavaliers Blancs",
+    pieces: [ { type: "♘", square: "c3" }, { type: "♘", square: "e4" } ]
   },
   {
-    id: "c2_tour_roque",
-    name: "Tour de Roque & Cavalier",
-    pieces: [ { type: "♖", square: "f1" }, { type: "♘", square: "f3" } ]
+    id: "c2_roque_noir",
+    name: "Roque Noir & 3 Pions",
+    pieces: [ { type: "♚", square: "g8" }, { type: "♜", square: "f8" }, { type: "♟", square: "f7" }, { type: "♟", square: "g7" }, { type: "♟", square: "h7" } ]
   },
   {
-    id: "c3_batterie_df",
-    name: "Batterie Dame + Fou",
-    pieces: [ { type: "♕", square: "c2" }, { type: "♗", square: "d3" } ]
+    id: "c3_fianchetto",
+    name: "Fianchetto Blanc du Roi",
+    pieces: [ { type: "♔", square: "g1" }, { type: "♗", square: "g2" }, { type: "♙", square: "g3" }, { type: "♙", square: "f2" }, { type: "♙", square: "h2" } ]
   },
   {
-    id: "c4_fou_developpement",
-    name: "Fou de case noire",
-    pieces: [ { type: "♗", square: "d2" } ]
+    id: "c4_pions_centre",
+    name: "Duo de Pions Centraux Blancs",
+    pieces: [ { type: "♙", square: "c4" }, { type: "♙", square: "d4" } ]
   }
 ];
 
-// Niveaux de temps par chunk
-const TIME_STEPS = [4500, 2250, 1000, 400];
+// --- POSITION COMPLÈTE ISSUE DE TON IMAGE (TEMPLATE PHASE 2) ---
+const FULL_TEMPLATE_POSITION = [
+  // Blancs
+  { type: "♖", square: "a1" }, { type: "♗", square: "c1" }, { type: "♕", square: "d1" }, { type: "♖", square: "f1" }, { type: "♔", square: "g1" },
+  { type: "♙", square: "b2" }, { type: "♙", square: "f2" }, { type: "♗", square: "g2" }, { type: "♙", square: "h2" },
+  { type: "♙", square: "a3" }, { type: "♘", square: "c3" }, { type: "♙", square: "g3" },
+  { type: "♙", square: "c4" }, { type: "♙", square: "d4" }, { type: "♘", square: "e4" },
+  
+  // Noirs
+  { type: "♟", square: "b6" }, { type: "♟", square: "e6" }, { type: "♞", square: "f6" },
+  { type: "♟", square: "a7" }, { type: "♝", square: "b7" }, { type: "♟", square: "c7" }, { type: "♞", square: "d7" }, { type: "♝", square: "e7" }, { type: "♟", square: "f7" }, { type: "♟", square: "g7" }, { type: "♟", square: "h7" },
+  { type: "♜", square: "a8" }, { type: "♛", square: "c8" }, { type: "♜", square: "f8" }, { type: "♚", square: "g8" }
+];
 
-// Suivi individuel des réussites par Chunk : { chunk_id: nombre_de_reussites }
+const TIME_STEPS = [4500, 2250, 1000, 400];
 const chunkStats = {};
-CURRENT_WAVE.forEach(c => chunkStats[c.id] = 0);
+CHUNKS_DATABASE.forEach(c => chunkStats[c.id] = 0);
 
 const ALL_SQUARES = [];
 for (let r = 8; r >= 1; r--) {
   for (let f = 0; f < 8; f++) ALL_SQUARES.push(String.fromCharCode(97 + f) + r);
 }
 
-let currentPhase = 1; // Phase 1: Chunks individuels | Phase 2: Position intégrée
-let currentChunkIndex = 0; // Index du chunk dans la Phase 1
+let currentPhase = 1; 
+let currentChunkIndex = 0; 
 let stage = "intro";
 let currentPieces = [];
 let placedPieces = {}, availablePalette = [], selectedPalettePiece = null;
@@ -120,32 +132,26 @@ let currentDistractors = [], recognitionChoice = null;
 
 function getChunkExposureMs(chunkId) {
   const successes = chunkStats[chunkId] || 0;
-  const levelIdx = Math.min(successes, TIME_STEPS.length - 1);
-  return TIME_STEPS[levelIdx];
+  return TIME_STEPS[Math.min(successes, TIME_STEPS.length - 1)];
 }
 
 function getPhase2ExposureMs() {
-  // En phase 2, le temps dépend du niveau moyen atteint sur les chunks de la vague
-  const minSuccess = Math.min(...CURRENT_WAVE.map(c => chunkStats[c.id]));
+  const minSuccess = Math.min(...CHUNKS_DATABASE.map(c => chunkStats[c.id]));
   return TIME_STEPS[Math.min(minSuccess, TIME_STEPS.length - 1)];
 }
 
 function setupCurrentStageData() {
   if (currentPhase === 1) {
-    currentPieces = CURRENT_WAVE[currentChunkIndex].pieces;
+    currentPieces = CHUNKS_DATABASE[currentChunkIndex].pieces;
   } else {
-    // Phase 2 : fusion de TOUS les chunks de la vague
-    currentPieces = CURRENT_WAVE.reduce((acc, c) => [...acc, ...c.pieces], []);
+    currentPieces = FULL_TEMPLATE_POSITION;
   }
 }
 
 function getDistractors() {
   const target = [...currentPieces];
   const optA = target;
-  
-  // Distracteur B: altère le 1er élément
   const optB = target.map((p, i) => i === 0 ? {...p, square: p.square[0] + (parseInt(p.square[1]) === 1 ? 2 : parseInt(p.square[1])-1)} : p);
-  // Distracteur C: altère le dernier élément
   const optC = target.map((p, i) => i === target.length - 1 ? {...p, square: p.square[0] + (parseInt(p.square[1]) === 8 ? 7 : parseInt(p.square[1])+1)} : p);
 
   return [
@@ -158,32 +164,32 @@ function getDistractors() {
 function renderUI() {
   setupCurrentStageData();
 
-  const currentMs = currentPhase === 1 ? getChunkExposureMs(CURRENT_WAVE[currentChunkIndex].id) : getPhase2ExposureMs();
-  document.getElementById("lbl-phase").innerText = currentPhase === 1 ? "Phase 1 (Encodage)" : "Phase 2 (Intégration)";
-  document.getElementById("lbl-step").innerText = currentPhase === 1 ? `Chunk ${currentChunkIndex + 1} / ${CURRENT_WAVE.length}` : "Position Complète";
+  const currentMs = currentPhase === 1 ? getChunkExposureMs(CHUNKS_DATABASE[currentChunkIndex].id) : getPhase2ExposureMs();
+  document.getElementById("lbl-phase").innerText = currentPhase === 1 ? "Phase 1 (Chunk)" : "Phase 2 (Position)";
+  document.getElementById("lbl-step").innerText = currentPhase === 1 ? `${currentChunkIndex + 1} / ${CHUNKS_DATABASE.length}` : "Template Complet";
   document.getElementById("lbl-time").innerText = `${currentMs} ms`;
 
   const card = document.getElementById("stage-card");
 
   if (stage === "intro") {
     const title = currentPhase === 1 
-      ? `Chunk ${currentChunkIndex + 1} : "${CURRENT_WAVE[currentChunkIndex].name}"` 
-      : "Position Intégrée (Phase 2)";
+      ? `Chunk ${currentChunkIndex + 1} : ${CHUNKS_DATABASE[currentChunkIndex].name}` 
+      : "Phase 2 : Position Intégrée Complète";
     const desc = currentPhase === 1 
-      ? "Apprentissage du chunk individuel." 
-      : "Reconstitution globale de tous les chunks vus précédemment !";
+      ? "Mémorisez ce motif isolé extrait de la position." 
+      : "Reconstituez la position globale préexistante avec l'ensemble des pièces !";
 
     card.innerHTML = `
       <h2>${title}</h2>
-      <div class="instructions">${desc}<br>Durée d'exposition : <b>${currentMs} ms</b></div>
+      <div class="instructions">${desc}<br>Exposition : <b>${currentMs} ms</b></div>
       <button class="btn" onclick="startTrial()">Lancer l'Exposition</button>
     `;
   } 
   else if (stage === "expose") {
     const map = currentPieces.reduce((acc, p) => ({...acc, [p.square]: p.type}), {});
     card.innerHTML = `
-      <h2>Phase d'Exposition</h2>
-      <div class="instructions">Mémorisez la disposition visuelle...</div>
+      <h2>Exposition Visuelle</h2>
+      <div class="instructions">Mémorisez le motif...</div>
       ${generateBoardHTML(map)}
     `;
   } 
@@ -192,8 +198,8 @@ function renderUI() {
   } 
   else if (stage === "recognize") {
     card.innerHTML = `
-      <h2>1. Reconnaissance Visuelle</h2>
-      <div class="instructions">Sélectionnez la mini-carte correspondant à ce que vous avez vu :</div>
+      <h2>1. Reconnaissance</h2>
+      <div class="instructions">Sélectionnez la mini-carte correcte :</div>
       <div class="mini-boards-row">
         ${currentDistractors.map((opt, idx) => `
           <div class="mini-card" onclick="selectRecognition(${idx})">
@@ -206,10 +212,10 @@ function renderUI() {
   } 
   else if (stage === "reconstruct") {
     card.innerHTML = `
-      <h2>2. Reconstitution Active</h2>
-      <div class="instructions">Placer les pièces (glisser-déposer ou clic pièce puis case).</div>
+      <h2>2. Reconstitution</h2>
+      <div class="instructions">Glissez ou cliquez sur une pièce puis sur une case.</div>
       <div class="palette-container">
-        <div class="palette-label">Réserve de pièces :</div>
+        <div class="palette-label">Réserve :</div>
         <div class="palette">
           ${availablePalette.map((piece, i) => `
             <div class="palette-item ${selectedPalettePiece === i ? 'selected' : ''}" 
@@ -221,7 +227,7 @@ function renderUI() {
       </div>
       ${generateBoardHTML(placedPieces, true)}
       <div style="margin-top:15px;">
-        <button class="btn" onclick="submitReconstruction()">Valider la Reconstitution</button>
+        <button class="btn" onclick="submitReconstruction()">Valider</button>
       </div>
     `;
   } 
@@ -239,7 +245,7 @@ function renderUI() {
     if (recognitionChoice !== true) perfect = false;
 
     card.innerHTML = `
-      <h2>${perfect ? "🎉 Bravo ! Validé" : "⚠️ Erreur de Reconstitution"}</h2>
+      <h2>${perfect ? "🎉 Reconstitution Reussie !" : "⚠️ Erreur Détectée"}</h2>
       <div class="instructions">Vert = Correct | Rouge = Erreur | Bleu = Manquant.</div>
       ${generateBoardHTML({...correctMap, ...placedPieces}, false, fxMap)}
       <div style="margin-top:15px;">
@@ -257,7 +263,7 @@ function startTrial() {
   stage = "expose";
   renderUI();
 
-  const ms = currentPhase === 1 ? getChunkExposureMs(CURRENT_WAVE[currentChunkIndex].id) : getPhase2ExposureMs();
+  const ms = currentPhase === 1 ? getChunkExposureMs(CHUNKS_DATABASE[currentChunkIndex].id) : getPhase2ExposureMs();
 
   setTimeout(() => {
     stage = "blank";
@@ -328,19 +334,17 @@ function submitReconstruction() {
 
 function nextStep(isPerfect) {
   if (currentPhase === 1) {
-    const currentChunkId = CURRENT_WAVE[currentChunkIndex].id;
+    const currentChunkId = CHUNKS_DATABASE[currentChunkIndex].id;
     if (isPerfect) {
       chunkStats[currentChunkId] = (chunkStats[currentChunkId] || 0) + 1;
     }
 
-    // Passage au chunk suivant ou passage en Phase 2
-    if (currentChunkIndex < CURRENT_WAVE.length - 1) {
+    if (currentChunkIndex < CHUNKS_DATABASE.length - 1) {
       currentChunkIndex++;
     } else {
-      currentPhase = 2; // Tous les chunks de la vague ont été présentés 1 par 1
+      currentPhase = 2; // Pass à la Phase 2 après le 4e chunk
     }
   } else {
-    // Phase 2 achevée : réinitialisation vers la Phase 1 pour reboucler/accélérer
     currentPhase = 1;
     currentChunkIndex = 0;
   }
